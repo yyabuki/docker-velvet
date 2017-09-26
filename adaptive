@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -o errexit
+set -o nounset
+set -o xtrace
+
+READS=$1
+DST=$2
+LOG=$(mktemp)
+
+kmergenie ${READS} | tee ${LOG}
+
+KMER_LENGTH=$(tail -n 1 ${LOG} | cut -f 3 -d ' ')
+COVERAGE_CUT=$(tail -n 2 ${LOG} | head -n 1 | cut -f 7 -d ' ')
+
+velveth ${DST} ${KMER_LENGTH} -fastq.gz -shortPaired ${READS}
+velvetg ${DST} -cov_cutoff ${COVERAGE_CUT}
+
